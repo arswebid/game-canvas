@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Bounce Game</title>
+    <style>
+      #canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script>
+// Initialize the canvas
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// Set up the ball
+let ball = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  radius: 10,
+  dx: 5,
+  dy: -5
+};
+
+// Set up the paddle
+let paddle = {
+  width: 75,
+  height: 10,
+  x: (canvas.width - 75) / 2
+};
+
+// Set up the score
+let score = 0;
+
+// Draw the ball
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "red";
+  ctx.fill();
+  ctx.closePath();
+}
+
+// Draw the paddle
+function drawPaddle() {
+  ctx.beginPath();
+  ctx.rect(paddle.x, canvas.height - paddle.height, paddle.width, paddle.height);
+  ctx.fillStyle = "blue";
+  ctx.fill();
+  ctx.closePath();
+}
+
+// Draw the score
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "black";
+  ctx.fillText("Score: " + score, 8, 20);
+}
+
+// Move the ball
+function moveBall() {
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  // Bounce the ball off the walls
+  if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+    ball.dx = -ball.dx;
+  }
+  if (ball.y - ball.radius < 0) {
+    ball.dy = -ball.dy;
+  }
+  else if (ball.y + ball.radius > canvas.height - paddle.height) {
+    // Bounce the ball off the paddle
+    if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+      ball.dy = -ball.dy;
+      score++;
+    }
+    else {
+      // Game over
+      clearInterval(intervalId);
+      alert("Game over. Your score is " + score);
+      document.location.reload();
+    }
+  }
+}
+
+// Move the paddle
+function movePaddle() {
+  if (rightPressed && paddle.x < canvas.width - paddle.width) {
+    paddle.x += 7;
+  }
+  else if (leftPressed && paddle.x > 0) {
+    paddle.x -= 7;
+  }
+}
+
+// Handle keyboard input
+let rightPressed = false;
+let leftPressed = false;
+
+function keyDownHandler(event) {
+  if (event.keyCode === 39) {
+    rightPressed = true;
+  }
+  else if (event.keyCode === 37) {
+    leftPressed = true;
+  }
+}
+
+function keyUpHandler(event) {
+  if (event.keyCode === 39) {
+    rightPressed = false;
+  }
+  else if (event.keyCode === 37) {
+    leftPressed = false;
+  }
+}
+
+document.addEventListener("keydown", keyDown);
+document.addEventListener("keyup", keyUpHandler);
+
+// Set up the game loop
+let intervalId = setInterval(gameLoop, 10);
+
+function gameLoop() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+drawBall();
+drawPaddle();
+drawScore();
+
+moveBall();
+movePaddle();
+}
+
+// Start the game
+alert("Press OK to start the game.");
+document.addEventListener("keydown", startGame);
+
+function startGame(event) {
+if (event.keyCode === 13) {
+document.removeEventListener("keydown", startGame);
+document.addEventListener("keydown", keyDownHandler);
+document.addEventListener("keyup", keyUpHandler);
+}
+}
+    </script>
+  </body>
+</html>
